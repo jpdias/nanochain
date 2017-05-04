@@ -4,6 +4,8 @@ var express = require("express");
 var bodyParser = require('body-parser');
 var WebSocket = require("ws");
 
+var genesisBlock = require("./genesisBlock.json");
+
 
 var http_port = process.env.HTTP_PORT || 3001;
 var p2p_port = process.env.P2P_PORT || 6001;
@@ -11,12 +13,14 @@ var initialPeers = process.env.PEERS ? process.env.PEERS.split(',') : [];
 
 //Block Structure
 class Block {
-    constructor(index, previousHash, timestamp, data, hash) {
+    constructor(index, previousHash, nounce, hashMask, timestamp, data, hash) {
         this.index = index;
         this.previousHash = previousHash.toString();
+        this.nounce = nounce;
         this.timestamp = timestamp;
         this.data = data;
         this.hash = hash.toString();
+        this.hashMask = hashMask.toString();
     }
 }
 
@@ -30,7 +34,13 @@ var MessageType = {
 
 
 var getGenesisBlock = () => {
-    return new Block(0, "0", 1465154705, "my genesis block!!", "816534932c2b7154836da6afc367695e6337db8a921823784c14378abed4f7d7");
+    return new Block(genesisBlock.index,
+                     genesisBlock.previousHash,
+                     genesisBlock.nounce,
+                     genesisBlock.hashMask,
+                     genesisBlock.timestamp,
+                     genesisBlock.data,
+                     genesisBlock.hash);
 };
 
 var blockchain = [getGenesisBlock()];
@@ -105,17 +115,32 @@ var generateNextBlock = (blockData) => {
     var previousBlock = getLatestBlock();
     var nextIndex = previousBlock.index + 1;
     var nextTimestamp = new Date().getTime() / 1000;
-    var nextHash = calculateHash(nextIndex, previousBlock.hash, nextTimestamp, blockData);
-    return new Block(nextIndex, previousBlock.hash, nextTimestamp, blockData, nextHash);
+    var nextHash = calculateNextHash(nextIndex, previousBlock.hash, previousBlock.hashMask, nextTimestamp, blockData);
+    return new Block(nextIndex, previousBlock.hash, nextHash.nounce, previousBlock.hashMask, nextTimestamp, blockData, nextHash.hash);
 };
 
 
 var calculateHashForBlock = (block) => {
-    return calculateHash(block.index, block.previousHash, block.timestamp, block.data);
+    return calculateHash(block.index, block.previousHash, block.hashMask, block.nounce, block.timestamp, block.data);
 };
 
-var calculateHash = (index, previousHash, timestamp, data) => {
-    return CryptoJS.SHA256(index + previousHash + timestamp + data).toString();
+var randomIntInc = (low, high) => {
+    return Math.floor(Math.random() * (high - low + 1) + low);
+};
+
+var calculateHash = (index, previousHash, hashMask, nounce, timestamp, data) => {
+    return CryptoJS.SHA256(index + previousHash + nounce + timestamp + data).toString();
+};
+
+
+var calculateNextHash = (index, previousHash, hashMask, timestamp, data) => {
+    var hash = "";
+    var nounce = 0;
+    while(!hash.startsWith(hashMask)){
+        nounce = randomIntInc(0,999999);
+        hash = CryptoJS.SHA256(index + previousHash + nounce + timestamp + data).toString();
+    }
+    return {"nounce": nounce, "hash": hash};
 };
 
 var addBlock = (newBlock) => {
@@ -135,8 +160,11 @@ var isValidNewBlock = (newBlock, previousBlock) => {
         console.log(typeof (newBlock.hash) + ' ' + typeof calculateHashForBlock(newBlock));
         console.log('invalid hash: ' + calculateHashForBlock(newBlock) + ' ' + newBlock.hash);
         return false;
+    } else {
+        console.log('everything is valid');
+        return true;
     }
-    return true;
+    
 };
 
 var connectToPeers = (newPeers) => {
