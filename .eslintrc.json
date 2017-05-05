@@ -11,8 +11,10 @@
         },
         "sourceType": "module"
     },
+    "extends": "eslint:recommended",
     "rules": {
         "no-const-assign": "warn",
+        "no-console": 0,
         "no-this-before-super": "warn",
         "no-undef": "warn",
         "no-unreachable": "warn",
