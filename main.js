@@ -1,8 +1,9 @@
 "use strict";
-const CryptoJS = require("crypto-js");
+const crypto = require('crypto');
 const express = require("express");
 const bodyParser = require("body-parser");
 const WebSocket = require("ws");
+const fs = require('fs');
 
 const genesisBlock = require("./genesisBlock.json");
 
@@ -13,12 +14,13 @@ const initialPeers = process.env.PEERS ? process.env.PEERS.split(",") : [];
 
 //Block Structure
 class Block {
-    constructor(index, previousHash, nonce, hashMask, timestamp, data, hash) {
+    constructor(index, previousHash, nonce, hashMask, timestamp, data, signature, hash) {
         this.index = index;
         this.previousHash = previousHash.toString();
         this.nonce = nonce;
         this.timestamp = timestamp;
         this.data = data;
+        this.signatureature = signature;
         this.hash = hash.toString();
         this.hashMask = hashMask.toString();
     }
@@ -40,6 +42,7 @@ const getGenesisBlock = () => {
         genesisBlock.hashMask,
         genesisBlock.timestamp,
         genesisBlock.data,
+        genesisBlock.signature,
         genesisBlock.hash);
 };
 
@@ -59,7 +62,7 @@ const initHttpServer = () => {
         res.send();
     });
     app.get("/peers", (req, res) => {
-        res.send(sockets.map(s => s._socket.remoteAddress + ":" + s._socket.remotePort));
+        res.send(sockets.map(s => `${ s._socket.remoteAddress } : ${ s._socket.remotePort }`));
     });
     app.post("/addPeer", (req, res) => {
         connectToPeers([req.body.peer]);
@@ -112,35 +115,51 @@ const initErrorHandler = (ws) => {
     ws.on("error", () => closeConnection(ws));
 };
 
+const getPrivateKey = () => {
+    return fs.readFileSync('keys/private_key.pem', 'utf8');
+}
+
+const getSignature = (data) => {
+    const sign = crypto.createSign('RSA-SHA256');
+
+    sign.write(data);
+    sign.end();
+
+    const privateKey = getPrivateKey();
+
+    return sign.sign(privateKey, 'hex')
+}
 
 const generateNextBlock = (blockData) => {
     let previousBlock = getLatestBlock();
     let nextIndex = previousBlock.index + 1;
     let nextTimestamp = new Date().getTime() / 1000;
-    let nextHash = calculateNextHash(nextIndex, previousBlock.hash, previousBlock.hashMask, nextTimestamp, blockData);
-    return new Block(nextIndex, previousBlock.hash, nextHash.nonce, previousBlock.hashMask, nextTimestamp, blockData, nextHash.hash);
+    let signature = getSignature(blockData);
+    let nextHash = calculateNextHash(nextIndex, previousBlock.hash, previousBlock.hashMask, nextTimestamp, blockData, signature);
+    return new Block(nextIndex, previousBlock.hash, nextHash.nonce, previousBlock.hashMask, nextTimestamp, blockData, signature, nextHash.hash);
 };
 
 
 const calculateHashForBlock = (block) => {
-    return calculateHash(block.index, block.previousHash, block.hashMask, block.nonce, block.timestamp, block.data);
+    return calculateHash(block.index, block.previousHash, block.hashMask, block.nonce, block.timestamp, block.data, block.signatureature);
 };
 
 const randomIntInc = (low, high) => {
     return Math.floor(Math.random() * (high - low + 1) + low);
 };
 
-const calculateHash = (index, previousHash, hashMask, nonce, timestamp, data) => {
-    return CryptoJS.SHA256(index + previousHash + nonce + timestamp + data).toString();
+const calculateHash = (index, previousHash, hashMask, nonce, timestamp, data, signature) => {
+    let hash = crypto.createHash('sha256').update(index + previousHash + nonce + timestamp + data + signature).digest('hex');
+    return hash;
 };
 
 
-const calculateNextHash = (index, previousHash, hashMask, timestamp, data) => {
+const calculateNextHash = (index, previousHash, hashMask, timestamp, data, signature) => {
     let hash = "";
     let nonce = 0;
     while (!hash.startsWith(hashMask)) {
         nonce = randomIntInc(0, 999999);
-        hash = CryptoJS.SHA256(index + previousHash + nonce + timestamp + data).toString();
+        hash = crypto.createHash('sha256').update(index + previousHash + nonce + timestamp + data + signature).digest('hex');
     }
     return {
         "nonce": nonce,
