@@ -20,7 +20,7 @@ class Block {
         this.nonce = nonce;
         this.timestamp = timestamp;
         this.data = data;
-        this.signatureature = signature;
+        this.signature = signature.toString();
         this.hash = hash.toString();
         this.hashMask = hashMask.toString();
     }
@@ -55,6 +55,7 @@ const initHttpServer = () => {
 
     app.get("/blocks", (req, res) => res.send(JSON.stringify(blockchain)));
     app.post("/mineBlock", (req, res) => {
+        console.log(req.body)
         let newBlock = generateNextBlock(req.body.data);
         addBlock(newBlock);
         broadcast(responseLatestMsg());
@@ -134,14 +135,14 @@ const generateNextBlock = (blockData) => {
     let previousBlock = getLatestBlock();
     let nextIndex = previousBlock.index + 1;
     let nextTimestamp = new Date().getTime() / 1000;
-    let signature = getSignature(blockData);
+    let signature = getSignature(blockData.toString());
     let nextHash = calculateNextHash(nextIndex, previousBlock.hash, previousBlock.hashMask, nextTimestamp, blockData, signature);
     return new Block(nextIndex, previousBlock.hash, nextHash.nonce, previousBlock.hashMask, nextTimestamp, blockData, signature, nextHash.hash);
 };
 
 
 const calculateHashForBlock = (block) => {
-    return calculateHash(block.index, block.previousHash, block.hashMask, block.nonce, block.timestamp, block.data, block.signatureature);
+    return calculateHash(block.index, block.previousHash, block.hashMask, block.nonce, block.timestamp, block.data, block.signature);
 };
 
 const randomIntInc = (low, high) => {
