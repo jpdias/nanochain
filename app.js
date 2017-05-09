@@ -48,7 +48,7 @@ commitBatch();
 // Snapshots
 
 
-var options = {
+const requestBlocks = {
     uri: serverBlocks,
     headers: {
         'User-Agent': 'Request-Promise'
@@ -56,18 +56,25 @@ var options = {
     json: true // Automatically parses the JSON string in the response
 };
 
-
-
 const getSnapshot = () => {
+    let snapshot = [];
 
-    rp(options)
+    rp(requestBlocks)
         .then(function (blocks) {
             for (let id in blocks) {
-                console.log(blocks[id].data)
+                let currentBlock = blocks[id].data;
+                for(let op in currentBlock){
+                    /*if(snapshot[currentBlock[op].entity]){
+                        console.log(currentBlock[op]);
+                    } else {
+                        snapshot.push(snapshot[currentBlock[op]]);
+                    }*/
+                    
+                }
             }
         })
         .catch(function (err) {
-            // API call failed...
+            console.error(`Failed to retrieve blocks. Err: ${ err }`)
         });
 }
 
