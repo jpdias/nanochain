@@ -1,8 +1,8 @@
-const request = require('request');
-const rp = require('request-promise');
+const request = require("request");
+const rp = require("request-promise");
 
-let serverMineUrl = "http://localhost:3001/mineBlock"
-let serverBlocks = "http://localhost:3001/blocks"
+let serverMineUrl = "http://localhost:3001/mineBlock";
+let serverBlocks = "http://localhost:3001/blocks";
 let batch = [];
 
 const PermissionLevel = {
@@ -40,9 +40,9 @@ const commitBatch = () => {
     );
 }
 
-addPermission('xA',PermissionLevel.READ,'rA');
-addPermission('xA',PermissionLevel.READ,'rB');
-addPermission('xB',PermissionLevel.READ,'rA');
+addPermission("xA",PermissionLevel.READ,"rA");
+addPermission("xA",PermissionLevel.READ,"rB");
+addPermission("xB",PermissionLevel.READ,"rA");
 commitBatch();
 
 // Snapshots
@@ -51,7 +51,7 @@ commitBatch();
 const requestBlocks = {
     uri: serverBlocks,
     headers: {
-        'User-Agent': 'Request-Promise'
+        "User-Agent": "Request-Promise"
     },
     json: true // Automatically parses the JSON string in the response
 };

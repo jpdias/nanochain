@@ -1,9 +1,9 @@
 "use strict";
-const crypto = require('crypto');
+const crypto = require("crypto");
 const express = require("express");
 const bodyParser = require("body-parser");
 const WebSocket = require("ws");
-const fs = require('fs');
+const fs = require("fs");
 
 const genesisBlock = require("./genesisBlock.json");
 
@@ -55,7 +55,7 @@ const initHttpServer = () => {
 
     app.get("/blocks", (req, res) => res.send(JSON.stringify(blockchain)));
     app.post("/mineBlock", (req, res) => {
-        console.log(req.body)
+        console.log(req.body);
         let newBlock = generateNextBlock(req.body.data);
         addBlock(newBlock);
         broadcast(responseLatestMsg());
@@ -117,19 +117,19 @@ const initErrorHandler = (ws) => {
 };
 
 const getPrivateKey = () => {
-    return fs.readFileSync('keys/private_key.pem', 'utf8');
-}
+    return fs.readFileSync("keys/private_key.pem", "utf8");
+};
 
 const getSignature = (data) => {
-    const sign = crypto.createSign('RSA-SHA256');
+    const sign = crypto.createSign("RSA-SHA256");
 
     sign.write(data);
     sign.end();
 
     const privateKey = getPrivateKey();
 
-    return sign.sign(privateKey, 'hex')
-}
+    return sign.sign(privateKey, "hex");
+};
 
 const generateNextBlock = (blockData) => {
     let previousBlock = getLatestBlock();
@@ -150,7 +150,7 @@ const randomIntInc = (low, high) => {
 };
 
 const calculateHash = (index, previousHash, hashMask, nonce, timestamp, data, signature) => {
-    let hash = crypto.createHash('sha256').update(index + previousHash + nonce + timestamp + data + signature).digest('hex');
+    let hash = crypto.createHash("sha256").update(index + previousHash + nonce + timestamp + data + signature).digest("hex");
     return hash;
 };
 
@@ -160,7 +160,7 @@ const calculateNextHash = (index, previousHash, hashMask, timestamp, data, signa
     let nonce = 0;
     while (!hash.startsWith(hashMask)) {
         nonce = randomIntInc(0, 999999);
-        hash = crypto.createHash('sha256').update(index + previousHash + nonce + timestamp + data + signature).digest('hex');
+        hash = crypto.createHash("sha256").update(index + previousHash + nonce + timestamp + data + signature).digest("hex");
     }
     return {
         "nonce": nonce,
