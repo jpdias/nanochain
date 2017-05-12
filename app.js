@@ -3,7 +3,8 @@ const rp = require('request-promise');
 
 const serverMineUrl = 'http://localhost:3001/mineBlock';
 const serverBlocks = 'http://localhost:3001/blocks';
-const batch = new Set();
+
+let batch = [];
 
 const PermissionLevel = {
   NONE: 0,
@@ -21,16 +22,25 @@ class Permission {
 }
 
 const addPermission = (entity, level, resource) => {
-  batch.add(new Permission(entity, level, resource));
+  batch = batch.filter((obj) => {
+    if (
+            obj.entity === entity &&
+            obj.resource === resource
+        ) {
+      return false;
+    }
+    return true;
+  });
+  batch.push(new Permission(entity, level, resource));
 };
 
 const commitBatch = () => {
   request.post(
     serverMineUrl,
-    { json: { data: Array.from(batch) } }, // not allow equal ops
+    { json: { data: batch } }, // not allow equal ops
     (error, response, body) => {
       if (!error && response.statusCode === 200) {
-        batch.clear();
+        batch = [];
         console.log(`OK ${response.statusCode}`);
       } else {
         console.log(`NOT OK ${response.statusCode} : ${body}`);
@@ -44,7 +54,7 @@ addPermission('xB', PermissionLevel.READ, 'rA');
 addPermission('xA', PermissionLevel.NONE, 'rB');
 addPermission('xA', PermissionLevel.NONE, 'rB');
 addPermission('xA', PermissionLevel.NONE, 'rB');
-addPermission('xA', PermissionLevel.NONE, 'rB');
+addPermission('xA', PermissionLevel.READ, 'rB');
 addPermission('xC', PermissionLevel.READ, 'rA');
 // addPermission('xA', PermissionLevel.READWRITE, 'rB');
 commitBatch();
