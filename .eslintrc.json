@@ -5,6 +5,8 @@
     ],
     "rules": {
         "no-const-assign": "warn",
-        "no-console": 0
+        "no-console": "off",
+        "linebreak-style": "off",
+        "no-underscore-dangle": "off"
     }
 }
