@@ -35,17 +35,21 @@ const addPermission = (entity, level, resource) => {
 };
 
 const commitBatch = () => {
-  request.post(
-    serverMineUrl,
-    { json: { data: batch } }, // not allow equal ops
-    (error, response, body) => {
-      if (!error && response.statusCode === 200) {
-        batch = [];
-        console.log(`OK ${response.statusCode}`);
-      } else {
-        console.log(`NOT OK ${response.statusCode} : ${body}`);
-      }
-    });
+  if (batch.length !== 0) {
+    request.post(
+      serverMineUrl,
+      { json: { data: batch } }, // not allow equal ops
+      (error, response, body) => {
+        if (!error && response.statusCode === 200) {
+          batch = [];
+          console.log(`OK ${response.statusCode}`);
+        } else {
+          console.log(`NOT OK ${response.statusCode} : ${body}`);
+        }
+      });
+  } else {
+    console.log('Empty batch.');
+  }
 };
 
 // addPermission('xA', PermissionLevel.READ, 'rA');
