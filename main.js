@@ -251,7 +251,7 @@ const initHttpServer = () => {
   const app = express();
   app.use(bodyParser.json());
 
-  app.get('/blocks', (req, res) => res.send(JSON.stringify(blockchain)));
+  app.get('/blocks', (req, res) => res.json(blockchain));
   app.post('/mineBlock', (req, res) => {
     console.log(req.body);
     const newBlock = generateNextBlock(req.body.data);
