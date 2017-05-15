@@ -251,7 +251,16 @@ const initHttpServer = () => {
   const app = express();
   app.use(bodyParser.json());
 
+  /* Get All Blocks */
   app.get('/blocks', (req, res) => res.json(blockchain));
+
+  /* Get Specific Blocks */
+  app.get('/blocks/:index', (req, res) => res.json(blockchain[req.params.index]));
+
+  /* Get all from certain id till the end */
+  app.get('/blocks/fromId/:index', (req, res) => res.json(blockchain.slice(req.params.index, blockchain.length - 1)));
+
+  /* Mine Recieved Block */
   app.post('/mineBlock', (req, res) => {
     console.log(req.body);
     const newBlock = generateNextBlock(req.body.data);
@@ -260,13 +269,19 @@ const initHttpServer = () => {
     console.info(`Block added: ${JSON.stringify(newBlock)}`);
     res.send();
   });
+
+  /* Get All Peers */
   app.get('/peers', (req, res) => {
     res.send(sockets.map(s => `${s._socket.remoteAddress} : ${s._socket.remotePort}`));
   });
+
+  /* Add peer to the block */
   app.post('/addPeer', (req, res) => {
     connectToPeers([req.body.peer]);
     res.send();
   });
+
+  /* Open server */
   app.listen(httpPort, () => console.info(`Listening http on port: ${httpPort}`));
 };
 
