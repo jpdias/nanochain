@@ -10,6 +10,11 @@ const httpPort = process.env.HTTP_PORT || 3001;
 const p2pPort = process.env.P2P_PORT || 6001;
 const initialPeers = process.env.PEERS ? process.env.PEERS.split(',') : [];
 
+Date.prototype.addHours = function(h) {    
+   this.setTime(this.getTime() + (h*60*60*1000)); 
+   return this;   
+}
+
 // Block Structure
 class Block {
   constructor(index, previousHash, nonce, hashMask, timestamp, data, signature, hash) {
@@ -146,6 +151,12 @@ const isValidNewBlock = (newBlock, previousBlock) => {
     return false;
   } else if (previousBlock.hash !== newBlock.previousHash) {
     console.error('Invalid previoushash.');
+    return false; 
+  } else if (previousBlock.timestamp >= newBlock.timestamp) {
+    console.error('Invalid timestamp.');
+    return false;
+  } else if (newBlock.timestamp >= (new Date().addHours(2).getTime() / 1000)) {
+    console.error('Invalid timestamp. Too far in future.');
     return false;
   } else if (calculateHashForBlock(newBlock) !== newBlock.hash) {
     console.info(`Types: ${typeof (newBlock.hash)} -- ${typeof calculateHashForBlock(newBlock)}`);
