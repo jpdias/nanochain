@@ -1,5 +1,7 @@
 const request = require('request');
 const rp = require('request-promise');
+const express = require('express');
+const bodyParser = require('body-parser');
 
 const serverMineUrl = 'http://localhost:3001/mineBlock';
 const serverBlocks = 'http://localhost:3001/blocks';
@@ -43,27 +45,15 @@ const commitBatch = () => {
         if (!error && response.statusCode === 200) {
           batch = [];
           console.log(`OK ${response.statusCode}`);
-        } else {
-          console.log(`NOT OK ${response.statusCode} : ${body}`);
+          return true;
         }
+        console.log(`NOT OK ${response.statusCode} : ${body}`);
+        return false;
       });
   } else {
     console.log('Empty batch.');
   }
 };
-
-// addPermission('xA', PermissionLevel.READ, 'rA');
-// addPermission('xA', PermissionLevel.READ, 'rB');
-addPermission('xB', PermissionLevel.READ, 'rA');
-addPermission('xA', PermissionLevel.NONE, 'rB');
-addPermission('xA', PermissionLevel.NONE, 'rB');
-addPermission('xA', PermissionLevel.NONE, 'rB');
-addPermission('xA', PermissionLevel.READ, 'rB');
-addPermission('xC', PermissionLevel.READ, 'rA');
-// addPermission('xA', PermissionLevel.READWRITE, 'rB');
-commitBatch();
-
-// Snapshots
 
 const requestBlocks = {
   uri: serverBlocks,
@@ -97,3 +87,25 @@ const getSnapshot = async () => {
 
 Promise.resolve(getSnapshot()).then(x => console.log(x));
 
+
+const initHttpServer = () => {
+  const app = express();
+  app.use(bodyParser.json());
+
+  app.post('/addRule', (req, res) => {
+    console.log(req.body);
+    addPermission(req.body.entity, new PermissionLevel(req.body.level), req.body.resource);
+    res.send();
+  });
+
+  app.get('/currentRules', (req, res) => {
+    res.json(batch);
+  });
+
+  app.post('/commitPermissions', (req, res) => {
+    commitBatch();
+    res.send();
+  });
+};
+
+initHttpServer();
