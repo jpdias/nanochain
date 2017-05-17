@@ -3,6 +3,8 @@ const rp = require('request-promise');
 const express = require('express');
 const bodyParser = require('body-parser');
 
+const httpPort = process.env.HTTP_PORT || 1337;
+
 const serverMineUrl = 'http://localhost:3001/mineBlock';
 const serverBlocks = 'http://localhost:3001/blocks';
 
@@ -24,6 +26,9 @@ class Permission {
 }
 
 const addPermission = (entity, level, resource) => {
+  if (entity === null || level === null || resource === null) {
+    return false;
+  }
   batch = batch.filter((obj) => {
     if (
             obj.entity === entity &&
@@ -34,6 +39,7 @@ const addPermission = (entity, level, resource) => {
     return true;
   });
   batch.push(new Permission(entity, level, resource));
+  return true;
 };
 
 const commitBatch = () => {
@@ -85,8 +91,6 @@ const getSnapshot = async () => {
   return snapshot;
 };
 
-Promise.resolve(getSnapshot()).then(x => console.log(x));
-
 
 const initHttpServer = () => {
   const app = express();
@@ -94,7 +98,15 @@ const initHttpServer = () => {
 
   app.post('/addRule', (req, res) => {
     console.log(req.body);
-    addPermission(req.body.entity, new PermissionLevel(req.body.level), req.body.resource);
+    if (addPermission(req.body.entity, req.body.level, req.body.resource)) {
+      res.send();
+    } else {
+      res.status(400).send('Bad Request');
+    }
+  });
+
+  app.post('/addRules', (req, res) => {
+    req.body.forEach(rule => addPermission(rule.entity, rule.level, rule.resource));
     res.send();
   });
 
@@ -102,10 +114,20 @@ const initHttpServer = () => {
     res.json(batch);
   });
 
-  app.post('/commitPermissions', (req, res) => {
+  app.get('/commitRules', (req, res) => {
     commitBatch();
     res.send();
   });
+
+  app.get('/snapshot', (req, res) => {
+    Promise.resolve(getSnapshot()).then((snapshot) => {
+      console.log(snapshot);
+      res.json(snapshot);
+    });
+  });
+
+  /* Open server */
+  app.listen(httpPort, () => console.info(`Listening http on port: ${httpPort}`));
 };
 
 initHttpServer();
