@@ -25,15 +25,21 @@ class Permission {
   }
 }
 
-const addPermission = (entity, level, resource) => {
+const isValidPermission = (entity, level, resource) => {
   if (entity === null || level === null || resource === null) {
     return false;
+  } else if (level !== PermissionLevel.NONE &&
+           level !== PermissionLevel.READ &&
+           level !== PermissionLevel.WRITE &&
+           level !== PermissionLevel.READWRITE) {
+    return false;
   }
+  return true;
+};
+
+const addPermission = (entity, level, resource) => {
   batch = batch.filter((obj) => {
-    if (
-            obj.entity === entity &&
-            obj.resource === resource
-        ) {
+    if (obj.entity === entity && obj.resource === resource) {
       return false;
     }
     return true;
@@ -98,15 +104,26 @@ const initHttpServer = () => {
 
   app.post('/addRule', (req, res) => {
     console.log(req.body);
-    if (addPermission(req.body.entity, req.body.level, req.body.resource)) {
+    if (isValidPermission(req.body.entity, req.body.level, req.body.resource)) {
+      addPermission(req.body.entity, req.body.level, req.body.resource);
       res.send();
     } else {
-      res.status(400).send('Bad Request');
+      res.status(400).json({ err: 'Invalid rule.' });
     }
   });
 
   app.post('/addRules', (req, res) => {
-    req.body.forEach(rule => addPermission(rule.entity, rule.level, rule.resource));
+    const tempPermissions = [];
+
+    req.body.forEach((rule) => {
+      if (!isValidPermission(rule.entity, rule.level, rule.resource)) {
+        res.status(400).json({ err: 'Invalid rule(s).' });
+      } else {
+        tempPermissions.push(rule);
+      }
+    });
+
+    tempPermissions.forEach(rule => addPermission(rule.entity, rule.level, rule.resource));
     console.log(batch);
     res.send();
   });

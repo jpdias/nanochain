@@ -36,40 +36,6 @@ const MessageType = {
 };
 
 
-const getGenesisBlock = () => new Block(genesisBlock.index,
-  genesisBlock.previousHash,
-  genesisBlock.nonce,
-  genesisBlock.hashMask,
-  genesisBlock.timestamp,
-  genesisBlock.data,
-  genesisBlock.signature,
-  genesisBlock.hash);
-
-
-const lastSavedBlocks = () => {
-  const blocks = [];
-
-  db.all('SELECT * FROM blocks', (err, rows) => {
-    if (rows) {
-      rows.forEach((row) => {
-        blocks.push(JSON.parse(row.data));
-        console.log(`${row.id}: ${row.info}`);
-      });
-    }
-  });
-
-  if (blocks.length === 0) {
-    return [getGenesisBlock()];
-  }
-  return blocks;
-};
-
-const getPrivateKey = () => fs.readFileSync('keys/private_key.pem', 'utf8');
-
-let blockchain = lastSavedBlocks();
-
-console.log(blockchain);
-
 const saveToDb = async (block) => {
   console.log('Saving to DB.');
   db.serialize(() => {
@@ -80,6 +46,36 @@ const saveToDb = async (block) => {
     stmt.finalize();
   });
 };
+
+const getGenesisBlock = () => new Block(genesisBlock.index,
+                                        genesisBlock.previousHash,
+                                        genesisBlock.nonce,
+                                        genesisBlock.hashMask,
+                                        genesisBlock.timestamp,
+                                        genesisBlock.data,
+                                        genesisBlock.signature,
+                                        genesisBlock.hash);
+
+let blockchain = [];
+
+const initBlockchain = () => new Promise((resolve) => {
+  db.serialize(() => {
+    db.all('SELECT * FROM blocks', (err, rows) => {
+      if (rows !== null && rows.length > 0) {
+        rows.forEach((row) => {
+          blockchain.push(JSON.parse(row.data));
+        }, resolve());
+      } else {
+        const genesis = getGenesisBlock();
+        blockchain.push(genesis);
+        saveToDb(genesis);
+        resolve();
+      }
+    });
+  });
+});
+
+const getPrivateKey = () => fs.readFileSync('keys/private_key.pem', 'utf8');
 
 const saveNewChain = (blocks) => {
   db.serialize(() => {
@@ -294,15 +290,15 @@ const initConnection = (ws) => {
   write(ws, queryChainLengthMsg());
 };
 
-const connectToPeers = (newPeers) => {
+const connectToPeers = newPeers => new Promise((resolve) => {
   newPeers.forEach((peer) => {
     const ws = new WebSocket(peer);
     ws.on('open', () => initConnection(ws));
     ws.on('error', () => {
       console.error('Connection failed.');
     });
-  });
-};
+  }, resolve());
+});
 
 const initHttpServer = () => {
   const app = express();
@@ -342,16 +338,20 @@ const initHttpServer = () => {
   app.listen(httpPort, () => console.info(`Listening http on port: ${httpPort}`));
 };
 
-const initP2PServer = () => {
+const initP2PServer = () => new Promise((resolve) => {
   const server = new WebSocket.Server({
     port: p2pPort,
   });
   server.on('connection', ws => initConnection(ws));
-  console.info(`Listening websocket p2p port on: ${p2pPort}`);
-};
+  resolve(console.info(`Listening websocket p2p port on: ${p2pPort}`));
+});
 
-connectToPeers(initialPeers);
-
-initHttpServer();
-
-initP2PServer();
+initBlockchain().then(() => {
+  connectToPeers(initialPeers).then(() => {
+    initP2PServer().then(() => {
+      console.log(blockchain);
+      initHttpServer();
+      console.log('Up and running.');
+    });
+  });
+});
