@@ -3,17 +3,15 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const WebSocket = require('ws');
 const fs = require('fs');
+const sqlite = require('sqlite3').verbose();
+
+const db = new sqlite.Database('resources/db.sqlite');
 
 const genesisBlock = require('./genesisBlock.json');
 
 const httpPort = process.env.HTTP_PORT || 3001;
 const p2pPort = process.env.P2P_PORT || 6001;
 const initialPeers = process.env.PEERS ? process.env.PEERS.split(',') : [];
-
-Date.prototype.addHours = function(h) {    
-   this.setTime(this.getTime() + (h*60*60*1000)); 
-   return this;   
-}
 
 // Block Structure
 class Block {
@@ -47,9 +45,41 @@ const getGenesisBlock = () => new Block(genesisBlock.index,
   genesisBlock.signature,
   genesisBlock.hash);
 
+
+const lastSavedBlocks = () => {
+  const blocks = [];
+
+  db.all('SELECT * FROM blocks', (err, rows) => {
+    if (rows) {
+      rows.forEach((row) => {
+        blocks.push(JSON.parse(row.data));
+        console.log(`${row.id}: ${row.info}`);
+      });
+    }
+  });
+
+  if (blocks.length === 0) {
+    return [getGenesisBlock()];
+  }
+  return blocks;
+};
+
 const getPrivateKey = () => fs.readFileSync('keys/private_key.pem', 'utf8');
 
-let blockchain = [getGenesisBlock()];
+let blockchain = lastSavedBlocks();
+
+console.log(blockchain);
+
+const saveToDb = async (block) => {
+  console.log('Saving to DB.');
+  db.serialize(() => {
+    db.run('CREATE TABLE IF NOT EXISTS blocks (id INTEGER PRIMARY KEY, data TEXT)');
+
+    const stmt = db.prepare('INSERT INTO blocks(data) VALUES (?)');
+    stmt.run(JSON.stringify(block));
+    stmt.finalize();
+  });
+};
 
 const getLatestBlock = () => blockchain[blockchain.length - 1];
 
@@ -146,16 +176,19 @@ const calculateHashForBlock = block => calculateHash(block.index,
   block.signature);
 
 const isValidNewBlock = (newBlock, previousBlock) => {
+  const today = new Date();
+  today.setHours(today.getHours() + 2);
+
   if (previousBlock.index + 1 !== newBlock.index) {
     console.error('Invalid index.');
     return false;
   } else if (previousBlock.hash !== newBlock.previousHash) {
     console.error('Invalid previoushash.');
-    return false; 
+    return false;
   } else if (previousBlock.timestamp >= newBlock.timestamp) {
     console.error('Invalid timestamp.');
     return false;
-  } else if (newBlock.timestamp >= (new Date().addHours(2).getTime() / 1000)) {
+  } else if (newBlock.timestamp >= (today.getTime() / 1000)) {
     console.error('Invalid timestamp. Too far in future.');
     return false;
   } else if (calculateHashForBlock(newBlock) !== newBlock.hash) {
@@ -170,6 +203,7 @@ const isValidNewBlock = (newBlock, previousBlock) => {
 const addBlock = (newBlock) => {
   if (isValidNewBlock(newBlock, getLatestBlock())) {
     blockchain.push(newBlock);
+    saveToDb(newBlock);
   }
 };
 

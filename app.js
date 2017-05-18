@@ -107,6 +107,7 @@ const initHttpServer = () => {
 
   app.post('/addRules', (req, res) => {
     req.body.forEach(rule => addPermission(rule.entity, rule.level, rule.resource));
+    console.log(batch);
     res.send();
   });
 

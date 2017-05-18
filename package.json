@@ -16,6 +16,8 @@
     "express": "^4.15.2",
     "request": "^2.81.0",
     "request-promise": "^4.2.1",
+    "sqlite": "^2.7.0",
+    "sqlite3": "^3.1.8",
     "ws": "^2.3.1"
   },
   "devDependencies": {
