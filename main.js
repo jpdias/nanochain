@@ -81,6 +81,13 @@ const saveToDb = async (block) => {
   });
 };
 
+const saveNewChain = (blocks) => {
+  db.serialize(() => {
+    db.run('DROP TABLE IF EXISTS blocks');
+    blocks.forEach(block => saveToDb(block));
+  });
+};
+
 const getLatestBlock = () => blockchain[blockchain.length - 1];
 
 const randomIntInc = (low, high) => Math.floor((Math.random() * ((high - low) + 1)) + low);
@@ -113,14 +120,16 @@ const generateNextBlock = (blockData) => {
   const nextIndex = previousBlock.index + 1;
   const nextTimestamp = new Date().getTime() / 1000;
   const signature = getSignature(blockData.toString());
-  const nextHash = calculateNextHash(nextIndex,
+  const nextHash = calculateNextHash(
+    nextIndex,
     previousBlock.hash,
     previousBlock.hashMask,
     nextTimestamp,
     blockData,
     signature);
 
-  return new Block(nextIndex,
+  return new Block(
+    nextIndex,
     previousBlock.hash,
     nextHash.nonce,
     previousBlock.hashMask,
@@ -167,7 +176,8 @@ const calculateHash = (index, previousHash, hashMask, nonce, timestamp, data, si
   return hash;
 };
 
-const calculateHashForBlock = block => calculateHash(block.index,
+const calculateHashForBlock = block => calculateHash(
+  block.index,
   block.previousHash,
   block.hashMask,
   block.nonce,
@@ -227,6 +237,7 @@ const replaceChain = (newBlocks) => {
   if (isValidChain(newBlocks) && newBlocks.length > blockchain.length) {
     console.info('Received blockchain is valid. Replacing current blockchain with received blockchain.');
     blockchain = newBlocks;
+    saveNewChain(blockchain);
     broadcast(responseLatestMsg());
   } else {
     console.error('Received blockchain invalid.');
@@ -242,6 +253,7 @@ const handleBlockchainResponse = (message) => {
     if (latestBlockHeld.hash === latestBlockReceived.previousHash) {
       console.info('We can append the received block to our chain.');
       blockchain.push(latestBlockReceived);
+      saveToDb(latestBlockReceived);
       broadcast(responseLatestMsg());
     } else if (receivedBlocks.length === 1) {
       console.info('We have to query the chain from our peer.');
