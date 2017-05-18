@@ -39,4 +39,5 @@ jspm_packages
 
 #Project specific
 
-resources/*
+blockchain-server/resources/db.sqlite
+blockchain-server/resources/keys/*

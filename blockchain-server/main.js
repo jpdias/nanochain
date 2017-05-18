@@ -5,7 +5,7 @@ const WebSocket = require('ws');
 const fs = require('fs');
 const sqlite = require('sqlite3').verbose();
 
-const db = new sqlite.Database('resources/db.sqlite');
+const db = new sqlite.Database('./blockchain-server/resources/db.sqlite');
 
 const genesisBlock = require('./genesisBlock.json');
 
@@ -75,7 +75,7 @@ const initBlockchain = () => new Promise((resolve) => {
   });
 });
 
-const getPrivateKey = () => fs.readFileSync('keys/private_key.pem', 'utf8');
+const getPrivateKey = () => fs.readFileSync('./blockchain-server/resources/keys/private_key.pem', 'utf8');
 
 const saveNewChain = (blocks) => {
   db.serialize(() => {
