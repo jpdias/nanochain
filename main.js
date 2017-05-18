@@ -315,7 +315,7 @@ const initHttpServer = () => {
 
   /* Mine Recieved Block */
   app.post('/mineBlock', (req, res) => {
-    console.log(req.body);
+    // console.log(req.body);
     const newBlock = generateNextBlock(req.body.data);
     addBlock(newBlock);
     broadcast(responseLatestMsg());
@@ -349,7 +349,7 @@ const initP2PServer = () => new Promise((resolve) => {
 initBlockchain().then(() => {
   connectToPeers(initialPeers).then(() => {
     initP2PServer().then(() => {
-      console.log(blockchain);
+      // console.log(blockchain);
       initHttpServer();
       console.log('Up and running.');
     });

@@ -8,15 +8,6 @@ const httpPort = process.env.HTTP_PORT || 1337;
 const serverMineUrl = 'http://localhost:3001/mineBlock';
 const serverBlocks = 'http://localhost:3001/blocks';
 
-let batch = [];
-
-const PermissionLevel = {
-  NONE: 0,
-  READ: 1,
-  WRITE: 2,
-  READWRITE: 3,
-};
-
 class Permission {
   constructor(entity, level, resource) {
     this.entity = entity;
@@ -24,6 +15,27 @@ class Permission {
     this.resource = resource;
   }
 }
+
+class BlockchainSnapshot {
+  constructor(index, lastSnapshotHash, lastIndex, lastHash, rules) {
+    this.index = index;
+    this.lastSnapshotHash = lastSnapshotHash;
+    this.lastIndex = lastIndex;
+    this.lastHash = lastHash;
+    this.rules = rules;
+  }
+}
+
+let batch = [];
+
+const snapshots = [new BlockchainSnapshot(0, 0, 0, 0, [])];
+
+const PermissionLevel = {
+  NONE: 0,
+  READ: 1,
+  WRITE: 2,
+  READWRITE: 3,
+};
 
 const isValidPermission = (entity, level, resource) => {
   if (entity === null || level === null || resource === null) {
@@ -73,15 +85,18 @@ const requestBlocks = {
   json: true, // Automatically parses the JSON string in the response
 };
 
-
 const getSnapshot = async () => {
   const blocks = await rp(requestBlocks);
 
-  let snapshot = [];
+  const lastblock = blocks[blocks.length - 1];
+
+  const lastSnapshot = snapshots[snapshots.length - 1];
+
+  let rules = [];
   for (let j = 0; j < blocks.length; j += 1) {
     const currentBlock = blocks[j].data;
     for (let k = 0; k < currentBlock.length; k += 1) {
-      const newSnapshot = snapshot.filter((obj) => {
+      const newSnapshot = rules.filter((obj) => {
         if (
             obj.entity === currentBlock[k].entity &&
             obj.resource === currentBlock[k].resource
@@ -91,12 +106,19 @@ const getSnapshot = async () => {
         return true;
       });
       newSnapshot.push(currentBlock[k]);
-      snapshot = newSnapshot;
+      rules = newSnapshot;
     }
   }
-  return snapshot;
-};
 
+  const newSnapshotBlock = new BlockchainSnapshot(lastSnapshot.index + 1,
+                                lastSnapshot.hash,
+                                lastblock.index,
+                                lastblock.hash,
+                                rules);
+
+  snapshots.push(newSnapshotBlock);
+  return rules;
+};
 
 const initHttpServer = () => {
   const app = express();
