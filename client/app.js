@@ -65,13 +65,13 @@ const commitBatch = () => {
     request.post(
       serverMineUrl,
       { json: { data: batch } }, // not allow equal ops
-      (error, response, body) => {
+      (error, response) => {
         if (!error && response.statusCode === 200) {
           batch = [];
           console.log(`OK ${response.statusCode}`);
           return true;
         }
-        console.log(`NOT OK ${response.statusCode} : ${body}`);
+        console.log(`NOT OK ${response.statusCode}`);
         return false;
       });
   } else {
