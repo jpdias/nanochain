@@ -335,6 +335,11 @@ const initHttpServer = () => {
     res.send();
   });
 
+  /* Is Up? */
+  app.get('/ping', (req, res) => {
+    res.send('pong');
+  });
+
   /* Open server */
   app.listen(httpPort, () => console.info(`Listening http on port: ${httpPort}`));
 };

@@ -70,6 +70,7 @@ const initHttpServer = () => {
   const app = express();
   app.use(bodyParser.json());
 
+  /* Add permission */
   app.post('/addRule', (req, res) => {
     if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
       res.status(400).json({ err: 'Empty request.' });
@@ -83,6 +84,7 @@ const initHttpServer = () => {
     }
   });
 
+  /* Add array of permissions */
   app.post('/addRules', (req, res) => {
     const tempPermissions = [];
     if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
@@ -102,10 +104,12 @@ const initHttpServer = () => {
     res.send();
   });
 
+  /* Get batch content */
   app.get('/currentRules', (req, res) => {
     res.json(batch);
   });
 
+  /* Commit batch rules */
   app.get('/commitRules', (req, res) => {
     if (commitBatch()) {
       res.json({ msg: 'OK' });
@@ -114,6 +118,7 @@ const initHttpServer = () => {
     }
   });
 
+  /* Make and return snapshot */
   app.get('/snapshot', (req, res) => {
     Promise.resolve(snapshots.getSnapshot()).then((snapshot) => {
       console.log(snapshot);
@@ -121,8 +126,14 @@ const initHttpServer = () => {
     });
   });
 
+  /* Get Blocks of Snapshot blockchain */
   app.get('/getSnapshotChain', (req, res) => {
     res.json(snapshots.getSnapshotChain);
+  });
+
+  /* Is Up? */
+  app.get('/ping', (req, res) => {
+    res.send('pong');
   });
 
   /* Open server */

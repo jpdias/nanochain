@@ -36,7 +36,7 @@ before(() => {
     shell.echo('Error: docker-compose down failed');
     shell.exit(1);
   } else {
-    shell.echo('Error: docker-compose running');
+    shell.echo('Docker-compose running.');
   }
 });
 
