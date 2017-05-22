@@ -61,9 +61,10 @@ const commitBatch = () => {
         console.log(`NOT OK ${response.statusCode}`);
         return false;
       });
-  } else {
-    console.log('Empty batch.');
+    return true;
   }
+  console.log('Empty batch.');
+  return false;
 };
 
 const initHttpServer = () => {
