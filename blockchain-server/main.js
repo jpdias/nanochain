@@ -47,14 +47,15 @@ const saveToDb = async (block) => {
   });
 };
 
-const getGenesisBlock = () => new Block(genesisBlock.index,
-                                        genesisBlock.previousHash,
-                                        genesisBlock.nonce,
-                                        genesisBlock.hashMask,
-                                        genesisBlock.timestamp,
-                                        genesisBlock.data,
-                                        genesisBlock.signature,
-                                        genesisBlock.hash);
+const getGenesisBlock = () => new Block(
+  genesisBlock.index,
+  genesisBlock.previousHash,
+  genesisBlock.nonce,
+  genesisBlock.hashMask,
+  genesisBlock.timestamp,
+  genesisBlock.data,
+  genesisBlock.signature,
+  genesisBlock.hash);
 
 let blockchain = [];
 

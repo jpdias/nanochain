@@ -107,8 +107,11 @@ const initHttpServer = () => {
   });
 
   app.get('/commitRules', (req, res) => {
-    commitBatch();
-    res.send();
+    if (commitBatch()) {
+      res.json({ msg: 'OK' });
+    } else {
+      res.status(400).json({ err: 'Can not commit.' });
+    }
   });
 
   app.get('/snapshot', (req, res) => {

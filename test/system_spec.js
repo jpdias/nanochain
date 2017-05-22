@@ -1,5 +1,6 @@
 const supertest = require('supertest');
 const should = require('should');
+const shell = require('shelljs');
 
 const server = supertest.agent('http://localhost:1337');
 
@@ -21,8 +22,35 @@ const rules1 = {
   resource: 'server1',
 };
 
+before(() => {
+  console.log('Global setup:');
+  if (!shell.which('docker')) {
+    shell.echo('Sorry, this script requires docker');
+    shell.exit(1);
+  }
+  if (!shell.which('docker-compose')) {
+    shell.echo('Sorry, this script requires docker-compose');
+    shell.exit(1);
+  }
+  if (shell.exec('docker-compose -f docker-compose.yaml up -d').code !== 0) {
+    shell.echo('Error: docker-compose down failed');
+    shell.exit(1);
+  } else {
+    shell.echo('Error: docker-compose running');
+  }
+});
+
+after(() => {
+  console.log('Global teardown:');
+  if (shell.exec('docker-compose -f docker-compose.yaml down --rmi all').code !== 0) {
+    shell.echo('Error: docker-compose down failed');
+    shell.exit(1);
+  }
+});
+
+
 describe('Get snapshot', () => {
-  it('should return snapshot', (done) => {
+  it('should return empty snapshot (first one)', (done) => {
     server
     .get('/snapshot')
     .expect('Content-type', /json/)
