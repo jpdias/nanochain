@@ -5,7 +5,7 @@ const snapshots = require('./snapshots.js');
 
 const httpPort = process.env.HTTP_PORT || 1337;
 
-const serverMineUrl = 'http://localhost:3001/mineBlock';
+const serverMineUrl = `${process.env.SERVER}/mineBlock` || 'http://localhost:3001/mineBlock';
 
 class Permission {
   constructor(entity, level, resource) {

@@ -5,9 +5,11 @@
   "main": "main.js",
   "scripts": {
     "blockchain": "node blockchain-server/main.js",
+    "prod-blockchain": "node main.js",
     "dev-blockchain": "nodemon blockchain-server/main.js",
     "client": "node client/app.js",
     "dev-client": "nodemon client/app.js",
+    "prod-client": "node app.js",
     "test": "mocha test/*.js --timeout 10000"
   },
   "author": "jpdias,hsf",

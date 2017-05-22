@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const rp = require('request-promise');
 
-const serverBlocks = 'http://localhost:3001/blocks';
+const serverBlocks = `${process.env.SERVER}/blocks` || 'http://localhost:3001/blocks';
 
 const calculateHash = (index, lastSnapshotHash, lastIndex, lastHash, rules) => crypto.createHash('sha256')
     .update(index + lastSnapshotHash + lastIndex + lastHash + rules).digest('hex');
