@@ -71,6 +71,9 @@ const initHttpServer = () => {
   app.use(bodyParser.json());
 
   app.post('/addRule', (req, res) => {
+    if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
+      res.status(400).json({ err: 'Empty request.' });
+    }
     console.log(req.body);
     if (isValidPermission(req.body.entity, req.body.level, req.body.resource)) {
       addPermission(req.body.entity, req.body.level, req.body.resource);
@@ -82,7 +85,10 @@ const initHttpServer = () => {
 
   app.post('/addRules', (req, res) => {
     const tempPermissions = [];
-
+    if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
+      res.status(400).json({ err: 'Empty request.' });
+      return;
+    }
     req.body.forEach((rule) => {
       if (!isValidPermission(rule.entity, rule.level, rule.resource)) {
         res.status(400).json({ err: 'Invalid rule(s).' });

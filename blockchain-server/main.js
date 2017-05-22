@@ -61,7 +61,7 @@ let blockchain = [];
 const initBlockchain = () => new Promise((resolve) => {
   db.serialize(() => {
     db.all('SELECT * FROM blocks', (err, rows) => {
-      if (rows !== null && rows.length > 0) {
+      if (rows !== undefined && rows !== null && rows.length > 0) {
         rows.forEach((row) => {
           blockchain.push(JSON.parse(row.data));
         }, resolve());
