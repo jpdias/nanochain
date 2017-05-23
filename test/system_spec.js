@@ -95,7 +95,10 @@ const snapshot = (server, rules) => {
     .end((err, res) => {
       console.log(res.body);
       if (err) done(err);
-      else done();
+      else {
+        res.body.should.be.containDeep(rules);
+        done();
+      }
     });
     });
   });
