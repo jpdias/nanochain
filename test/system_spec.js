@@ -2,6 +2,9 @@ const supertest = require('supertest');
 const should = require('should');
 const shell = require('shelljs');
 
+const numOfNodes = 3;
+const clientStartPort = 1337;
+
 before(() => {
   console.log('Global setup:');
   if (!shell.which('docker')) {
@@ -32,20 +35,22 @@ after(() => {
   }
 });
 
-/*describe('Get snapshot', () => {
-  it('should return empty snapshot (first one)', (done) => {
-    server
-  .get('/snapshot')
-  .expect('Content-type', /json/)
-  .expect(200) // THis is HTTP response
-  .end((err, res) => {
-    if (err) done(err);
-    res.body.should.be.an.Array();
-    res.body.should.be.deepEqual([]);
-    done();
+const isAlive = (server) => {
+  describe('Check server is alive (ping)', () => {
+    it('should respond with pong', (done) => {
+      server
+        .get('/ping')
+        .expect(200)
+        .end((err, res) => {
+          if (err) done(err);
+          else {
+            res.body.should.be.equal('pong');
+            done();
+          }
+        });
+    });
   });
-  });
-});*/
+};
 
 const addrules = (server, rules) => {
   describe('Add access rules', () => {
@@ -135,16 +140,18 @@ const snapshot2 = (rules, rule, server) => {
     .expect('Content-type', /json/)
     .expect(200) // THis is HTTP response
     .end((err, res) => {
-      if (err) return done(err);
-      res.body.should.not.be.containDeep(rules);
-      res.body.should.be.containDeep([rule]);
-      return done();
+      if (err) done(err);
+      else {
+        res.body.should.not.be.containDeep(rules);
+        res.body.should.be.containDeep([rule]);
+        done();
+      }
     });
     });
   });
 };
 
-for (let i = 0; i < 3; i += 1) {
+for (let i = 0; i < numOfNodes; i += 1) {
   const rules = [
     { entity: `entityA${i}`,
       level: 1,
@@ -163,7 +170,9 @@ for (let i = 0; i < 3; i += 1) {
     resource: `serverA${i}`,
   };
 
-  const server = supertest.agent(`http://localhost:${1337 + i}`);
+  const server = supertest.agent(`http://localhost:${clientStartPort + i}`);
+
+  isAlive(server);
 
   addrules(server, rules);
 
