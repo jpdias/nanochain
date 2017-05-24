@@ -42,3 +42,4 @@ jspm_packages
 blockchain-server/resources/db.sqlite
 blockchain-server/resources/keys/*
 db.sqlite
+docker-logs.log
