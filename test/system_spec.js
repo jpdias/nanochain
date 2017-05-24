@@ -2,11 +2,14 @@ const supertest = require('supertest');
 const should = require('should');
 const shell = require('shelljs');
 
+const logFile = 'docker-logs.log';
+
 const numOfNodes = 3;
 const clientStartPort = 1337;
 
-before(() => {
+before((done) => {
   console.log('Global setup:');
+
   if (!shell.which('docker')) {
     shell.echo('Sorry, this script requires docker');
     shell.exit(1);
@@ -21,10 +24,10 @@ before(() => {
   } else {
     shell.echo('Docker-compose running.');
   }
-  if (shell.exec('sleep 2').code !== 0) {
-    shell.echo('Error: sleep');
-    shell.exit(1);
-  }
+  setTimeout(() => {
+    shell.exec(`docker-compose logs -f -t --no-color > ${logFile}`, { async: true });
+    done();
+  }, 5000);
 });
 
 after(() => {
@@ -35,48 +38,32 @@ after(() => {
   }
 });
 
-const isAlive = (server) => {
-  describe('Check server is alive (ping)', () => {
+const isAlive = (server, node) => {
+  describe(`Check server is alive (ping): ${node}`, () => {
     it('should respond with pong', (done) => {
       server
-        .get('/ping')
-        .expect(200)
-        .end((err, res) => {
-          if (err) done(err);
-          else {
-            res.body.should.be.equal('pong');
-            done();
-          }
-        });
+      .get('/ping')
+      .expect('Content-type', /text/)
+      .expect(200)
+      .end((err, res) => {
+        if (err) done(err);
+        else {
+          res.text.should.equal('pong');
+          done();
+        }
+      });
     });
   });
 };
 
-const addrules = (server, rules) => {
-  describe('Add access rules', () => {
+const addrules = (server, rules, node) => {
+  describe(`Add access rules: ${node}`, () => {
     it('should respond with 200', (done) => {
       server
-        .post('/addRules')
-        .send(rules)
-        .expect(200)
-        .end((err, res) => {
-          console.log(res.body);
-          if (err) done(err);
-          else done();
-        });
-    });
-  });
-};
-
-
-const commitRules = (server) => {
-  describe('Get commitRules', () => {
-    it('should commit new rules', (done) => {
-      server
-      .get('/commitRules')
-      .expect(200) // THis is HTTP response
-      .end((err, res) => {
-        console.log(res.body);
+      .post('/addRules')
+      .send(rules)
+      .expect(200)
+      .end((err) => {
         if (err) done(err);
         else done();
       });
@@ -85,34 +72,47 @@ const commitRules = (server) => {
 };
 
 
-const snapshot = (server, rules) => {
-  describe('Get snapshot', () => {
-    it('should return snapshot', (done) => {
+const commitRules = (server, node) => {
+  describe(`Get commitRules: ${node}`, () => {
+    it('should commit new rules', (done) => {
       server
-    .get('/snapshot')
-    .expect('Content-type', /json/)
-    .expect(200) // THis is HTTP response
-    .end((err, res) => {
-      console.log(res.body);
-      if (err) done(err);
-      else {
-        res.body.should.be.containDeep(rules);
-        done();
-      }
-    });
+      .get('/commitRules')
+      .expect(200) // THis is HTTP response
+      .end((err) => {
+        if (err) done(err);
+        else done();
+      });
     });
   });
 };
 
-const addrule = (server, rule) => {
-  describe('Add access rule', () => {
+
+const snapshot = (server, rules, node) => {
+  describe(`Get snapshot: ${node}`, () => {
+    it('should return snapshot', (done) => {
+      server
+      .get('/snapshot')
+      .expect('Content-type', /json/)
+      .expect(200) // THis is HTTP response
+      .end((err, res) => {
+        if (err) done(err);
+        else {
+          res.body.should.be.containDeep(rules);
+          done();
+        }
+      });
+    });
+  });
+};
+
+const addrule = (server, rule, node) => {
+  describe(`Add access rule: ${node}`, () => {
     it('should respond with 200', (done) => {
       server
       .post('/addRule')
       .send(rule)
       .expect(200)
-      .end((err, res) => {
-        console.log(res.body);
+      .end((err) => {
         if (err) done(err);
         else done();
       });
@@ -120,14 +120,13 @@ const addrule = (server, rule) => {
   });
 };
 
-const commitrule = (server) => {
-  describe('Get commitRule', () => {
+const commitrule = (server, node) => {
+  describe(`Get commitRule: ${node}`, () => {
     it('should commit new rule', (done) => {
       server
       .get('/commitRules')
       .expect(200) // THis is HTTP response
-      .end((err, res) => {
-        console.log(res.body);
+      .end((err) => {
         if (err) done(err);
         else done();
       });
@@ -135,21 +134,21 @@ const commitrule = (server) => {
   });
 };
 
-const snapshot2 = (rules, rule, server) => {
-  describe('Get snapshot', () => {
+const snapshot2 = (rules, rule, server, node) => {
+  describe(`Get snapshot: ${node}`, () => {
     it('should return snapshot with changed rule', (done) => {
       server
-    .get('/snapshot')
-    .expect('Content-type', /json/)
-    .expect(200) // THis is HTTP response
-    .end((err, res) => {
-      if (err) done(err);
-      else {
-        res.body.should.not.be.containDeep(rules);
-        res.body.should.be.containDeep([rule]);
-        done();
-      }
-    });
+      .get('/snapshot')
+      .expect('Content-type', /json/)
+      .expect(200) // THis is HTTP response
+      .end((err, res) => {
+        if (err) done(err);
+        else {
+          res.body.should.not.be.containDeep(rules);
+          res.body.should.be.containDeep([rule]);
+          done();
+        }
+      });
     });
   });
 };
@@ -175,18 +174,18 @@ for (let i = 0; i < numOfNodes; i += 1) {
 
   const server = supertest.agent(`http://localhost:${clientStartPort + i}`);
 
-  isAlive(server);
+  isAlive(server, `node${i}`);
 
-  addrules(server, rules);
+  addrules(server, rules, `node${i}`);
 
-  commitRules(server);
+  commitRules(server, `node${i}`);
 
-  snapshot(server, rules);
+  snapshot(server, rules, `node${i}`);
 
-  addrule(server, rule);
+  addrule(server, rule, `node${i}`);
 
-  commitrule(server);
+  commitrule(server, `node${i}`);
 
-  snapshot2(rules, rule, server);
+  snapshot2(rules, rule, server, `node${i}`);
 }
 

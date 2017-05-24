@@ -134,6 +134,7 @@ const initHttpServer = () => {
 
   /* Is Up? */
   app.get('/ping', (req, res) => {
+    res.type('text/plain');
     res.send('pong');
   });
 
