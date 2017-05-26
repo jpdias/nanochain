@@ -10,8 +10,9 @@ ADD /blockchain-server/genesisBlock.json /blockchain-server/
 RUN mkdir /blockchain-server/resources
 RUN mkdir /blockchain-server/resources/keys
 
-RUN apt-get -y install openssh-client && \
-    cd /blockchain-server/resources/keys && \
+RUN apt-get -y install openssh-client 
+
+RUN cd /blockchain-server/resources/keys && \
     openssl genrsa -out private_key.pem 1024 && \
     openssl rsa -in private_key.pem -pubout > public_key.pem
 
