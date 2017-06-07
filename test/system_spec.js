@@ -4,7 +4,7 @@ const shell = require('shelljs');
 
 const logFile = 'docker-logs.log';
 
-const numOfNodes = 3;
+const numOfNodes = 10;
 const clientStartPort = 1337;
 
 before((done) => {
@@ -18,16 +18,16 @@ before((done) => {
     shell.echo('Sorry, this script requires docker-compose');
     shell.exit(1);
   }
-  if (shell.exec('docker-compose -f docker-compose.yaml up -d').code !== 0) {
+  if (shell.exec(`docker-compose -f docker-compose-${numOfNodes}.yaml up -d`).code !== 0) {
     shell.echo('Error: docker-compose down failed');
     shell.exit(1);
   } else {
+    shell.exec(`docker-compose logs -f -t --no-color >> ${logFile}`, { async: true });
     shell.echo('Docker-compose running.');
   }
   setTimeout(() => {
-    shell.exec(`docker-compose logs -f -t --no-color > ${logFile}`, { async: true });
     done();
-  }, 5000);
+  }, 10000);
 });
 
 after(() => {
