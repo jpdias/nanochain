@@ -4,7 +4,7 @@ const shell = require('shelljs');
 
 const logFile = 'docker-logs.log';
 
-const numOfNodes = 10;
+const numOfNodes = 3;
 const clientStartPort = 1337;
 
 before((done) => {
@@ -22,20 +22,20 @@ before((done) => {
     shell.echo('Error: docker-compose down failed');
     shell.exit(1);
   } else {
-    shell.exec(`docker-compose logs -f -t --no-color >> ${logFile}`, { async: true });
     shell.echo('Docker-compose running.');
   }
   setTimeout(() => {
     done();
   }, 10000);
+  shell.exec(`docker-compose logs -f docker-compose-${numOfNodes}.yaml -t --no-color >> ${logFile}`, { async: true });
 });
 
 after(() => {
   console.log('Global teardown:');
-  if (shell.exec('docker-compose -f docker-compose.yaml down --rmi all').code !== 0) {
+  /*if (shell.exec('docker-compose -f docker-compose.yaml down --rmi all').code !== 0) {
     shell.echo('Error: docker-compose down failed');
     shell.exit(1);
-  }
+  }*/
 });
 
 const isAlive = (server, node) => {
@@ -173,6 +173,8 @@ for (let i = 0; i < numOfNodes; i += 1) {
   };
 
   const server = supertest.agent(`http://localhost:${clientStartPort + i}`);
+
+  console.log(`Container: ${clientStartPort + i}`);
 
   isAlive(server, `node${i}`);
 
