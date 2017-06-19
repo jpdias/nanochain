@@ -1,0 +1,38 @@
+version: '3'
+services:
+  node1:
+    build:
+      context: ../../
+      dockerfile: /blockchain-server/Dockerfile
+    ports:
+      - "3001:3001"
+  client1:
+    environment:
+      - SERVER=http://node1:3001
+    build:
+      context: ../../
+      dockerfile: /client/Dockerfile
+    ports:
+      - "1337:1337"
+    links:
+      - node1
+{% for node in range(2,totalOfNodes) %}
+  node{{ node }}:
+    environment:
+      - PEERS=ws://node{{ node - 1 }}:6001
+    build:
+      context: ../../
+      dockerfile: /blockchain-server/Dockerfile
+    ports:
+      - "{{ 3000 + node }}:3001"
+  client{{ node }}:
+    environment:
+      - SERVER=http://node{{ node }}:3001
+    build:
+      context: ../../
+      dockerfile: /client/Dockerfile
+    ports:
+      - "{{ 1337 + node }}:1337"
+    links:
+      - node{{ node }}
+{% endfor %}
