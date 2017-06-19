@@ -10,8 +10,8 @@
     "client": "node client/app.js",
     "dev-client": "nodemon client/app.js",
     "prod-client": "node app.js",
-    "test-10": "mocha test/test-ten/system_spec.js --timeout 3000000",
-    "test": "mocha test/test-three/system_spec.js --timeout 3000000"
+    "test10": "mocha test/test-ten/system_spec.js --timeout 3000000",
+    "test3": "mocha test/test-three/system_spec.js --timeout 3000000"
   },
   "author": "jpdias,hsf",
   "license": "ISC",

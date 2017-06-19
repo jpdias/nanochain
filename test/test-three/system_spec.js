@@ -2,10 +2,12 @@ const supertest = require('supertest');
 const should = require('should');
 const shell = require('shelljs');
 
-const logFile = 'docker-logs.log';
+const baseDir = 'test/test-three/';
 
 const numOfNodes = 3;
 const clientStartPort = 1337;
+
+const logFile = `docker-logs-${numOfNodes}.log`;
 
 before((done) => {
   console.log('Global setup:');
@@ -18,7 +20,7 @@ before((done) => {
     shell.echo('Sorry, this script requires docker-compose');
     shell.exit(1);
   }
-  if (shell.exec(`docker-compose -f docker-compose-${numOfNodes}.yaml up -d`).code !== 0) {
+  if (shell.exec(`cd ${baseDir} && docker-compose -f docker-compose.yaml up -d`).code !== 0) {
     shell.echo('Error: docker-compose down failed');
     shell.exit(1);
   } else {
@@ -27,15 +29,21 @@ before((done) => {
   setTimeout(() => {
     done();
   }, 10000);
-  shell.exec(`docker-compose logs -f docker-compose-${numOfNodes}.yaml -t --no-color >> ${logFile}`, { async: true });
+  shell.exec(`cd ${baseDir} && docker-compose logs -f -t --no-color >> ../../logs/${logFile}`, { async: true });
 });
 
 after(() => {
   console.log('Global teardown:');
-  /*if (shell.exec('docker-compose -f docker-compose.yaml down --rmi all').code !== 0) {
+  if (shell.exec(`cd ${baseDir} && docker-compose -f docker-compose.yaml down --rmi all`).code !== 0) {
     shell.echo('Error: docker-compose down failed');
     shell.exit(1);
-  }*/
+  }
+ });
+
+beforeEach((done) => {
+  setTimeout(() => {
+    done();
+  }, 500);
 });
 
 const isAlive = (server, node) => {
