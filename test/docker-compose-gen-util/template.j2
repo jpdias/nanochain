@@ -25,6 +25,8 @@ services:
       dockerfile: /blockchain-server/Dockerfile
     ports:
       - "{{ 3000 + node }}:3001"
+    links:
+      - node{{ node - 1 }}:node{{ node - 1 }}
   client{{ node }}:
     environment:
       - SERVER=http://node{{ node }}:3001

@@ -2,9 +2,9 @@ const supertest = require('supertest');
 const should = require('should');
 const shell = require('shelljs');
 
-const baseDir = 'test/test-three/';
+const baseDir = 'test/test-more/';
+const numOfNodes = 100;
 
-const numOfNodes = 1000;
 const clientStartPort = 1337;
 
 const logFile = `docker-logs-${numOfNodes}.log`;

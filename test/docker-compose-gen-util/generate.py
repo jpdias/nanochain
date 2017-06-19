@@ -3,7 +3,7 @@ import yaml
 import os
 from lxml import etree
 
-config = { 'totalOfNodes': 1000 }
+config = { 'totalOfNodes': 100 }
 
 templateFilePath = jinja2.FileSystemLoader(os.getcwd())
 
