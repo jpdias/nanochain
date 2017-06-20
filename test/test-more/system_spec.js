@@ -3,7 +3,7 @@ const should = require('should');
 const shell = require('shelljs');
 
 const baseDir = 'test/test-more/';
-const numOfNodes = 100;
+const numOfNodes = 50;
 
 const clientStartPort = 1337;
 
@@ -32,13 +32,13 @@ before((done) => {
   shell.exec(`cd ${baseDir} && docker-compose logs -f -t --no-color >> ../../logs/${logFile}`, { async: true });
 });
 
-after(() => {
+/*after(() => {
   console.log('Global teardown:');
   if (shell.exec(`cd ${baseDir} && docker-compose -f docker-compose.yaml down --rmi all`).code !== 0) {
     shell.echo('Error: docker-compose down failed');
     shell.exit(1);
   }
- });
+ });*/
 
 beforeEach((done) => {
   setTimeout(() => {
