@@ -3,7 +3,7 @@ const should = require('should');
 const shell = require('shelljs');
 
 const baseDir = 'test/test-more/';
-const numOfNodes = 50;
+const numOfNodes = 40;
 
 const clientStartPort = 1337;
 

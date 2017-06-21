@@ -34,7 +34,7 @@ services:
       context: ../../
       dockerfile: /client/Dockerfile
     ports:
-      - "{{ 1337 + node }}:1337"
+      - "{{ 1336 + node }}:1337"
     links:
       - node{{ node }}
 {% endfor %}

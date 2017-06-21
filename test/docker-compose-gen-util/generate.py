@@ -1,9 +1,10 @@
 import jinja2
 import yaml
 import os
+import sys
 from lxml import etree
 
-config = { 'totalOfNodes': 50 }
+config = { 'totalOfNodes': int(sys.argv[1]) }
 
 templateFilePath = jinja2.FileSystemLoader(os.getcwd())
 
