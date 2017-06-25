@@ -3,7 +3,7 @@ services:
   node1:
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3001:3001"
   client1:
@@ -22,7 +22,7 @@ services:
       - PEERS=ws://node{{ node - 1 }}:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "{{ 3000 + node }}:3001"
     links:

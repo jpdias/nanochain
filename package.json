@@ -4,9 +4,9 @@
   "description": "experiments",
   "main": "main.js",
   "scripts": {
-    "blockchain": "node blockchain-server/main.js",
+    "blockchain": "node server/main.js",
     "prod-blockchain": "node main.js",
-    "dev-blockchain": "nodemon blockchain-server/main.js",
+    "dev-blockchain": "nodemon server/main.js",
     "client": "node client/app.js",
     "dev-client": "nodemon client/app.js",
     "prod-client": "node app.js",

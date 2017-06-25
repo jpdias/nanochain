@@ -39,8 +39,8 @@ jspm_packages
 
 #Project specific
 
-blockchain-server/resources/db.sqlite
-blockchain-server/resources/keys/*
+server/resources/db.sqlite
+server/resources/keys/*
 db.sqlite
 docker-logs.log
 logs/

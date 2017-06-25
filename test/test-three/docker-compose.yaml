@@ -3,7 +3,7 @@ services:
   node1:
     build:
       context: ../../
-      dockerfile: blockchain-server/Dockerfile
+      dockerfile: server/Dockerfile
     ports:
       - "3001:3001"
   client1:
@@ -21,7 +21,7 @@ services:
       - PEERS=ws://node1:6001
     build:
       context: ../../
-      dockerfile: blockchain-server/Dockerfile
+      dockerfile: server/Dockerfile
     ports:
       - "3002:3001"
     links:
@@ -41,7 +41,7 @@ services:
       - PEERS=ws://node2:6001
     build:
       context: ../../
-      dockerfile: blockchain-server/Dockerfile
+      dockerfile: server/Dockerfile
     ports:
       - "3003:3001"
     links:

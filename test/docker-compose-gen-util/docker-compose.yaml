@@ -3,7 +3,7 @@ services:
   node1:
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3001:3001"
   client1:
@@ -21,7 +21,7 @@ services:
       - PEERS=ws://node1:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3002:3001"
     links:
@@ -41,7 +41,7 @@ services:
       - PEERS=ws://node2:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3003:3001"
     links:
@@ -61,7 +61,7 @@ services:
       - PEERS=ws://node3:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3004:3001"
     links:
@@ -81,7 +81,7 @@ services:
       - PEERS=ws://node4:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3005:3001"
     links:
@@ -101,7 +101,7 @@ services:
       - PEERS=ws://node5:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3006:3001"
     links:
@@ -121,7 +121,7 @@ services:
       - PEERS=ws://node6:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3007:3001"
     links:
@@ -141,7 +141,7 @@ services:
       - PEERS=ws://node7:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3008:3001"
     links:
@@ -161,7 +161,7 @@ services:
       - PEERS=ws://node8:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3009:3001"
     links:
@@ -181,7 +181,7 @@ services:
       - PEERS=ws://node9:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3010:3001"
     links:
@@ -201,7 +201,7 @@ services:
       - PEERS=ws://node10:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3011:3001"
     links:
@@ -221,7 +221,7 @@ services:
       - PEERS=ws://node11:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3012:3001"
     links:
@@ -241,7 +241,7 @@ services:
       - PEERS=ws://node12:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3013:3001"
     links:
@@ -261,7 +261,7 @@ services:
       - PEERS=ws://node13:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3014:3001"
     links:
@@ -281,7 +281,7 @@ services:
       - PEERS=ws://node14:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3015:3001"
     links:
@@ -301,7 +301,7 @@ services:
       - PEERS=ws://node15:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3016:3001"
     links:
@@ -321,7 +321,7 @@ services:
       - PEERS=ws://node16:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3017:3001"
     links:
@@ -341,7 +341,7 @@ services:
       - PEERS=ws://node17:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3018:3001"
     links:
@@ -361,7 +361,7 @@ services:
       - PEERS=ws://node18:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3019:3001"
     links:
@@ -381,7 +381,7 @@ services:
       - PEERS=ws://node19:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3020:3001"
     links:
@@ -401,7 +401,7 @@ services:
       - PEERS=ws://node20:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3021:3001"
     links:
@@ -421,7 +421,7 @@ services:
       - PEERS=ws://node21:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3022:3001"
     links:
@@ -441,7 +441,7 @@ services:
       - PEERS=ws://node22:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3023:3001"
     links:
@@ -461,7 +461,7 @@ services:
       - PEERS=ws://node23:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3024:3001"
     links:
@@ -481,7 +481,7 @@ services:
       - PEERS=ws://node24:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3025:3001"
     links:
@@ -501,7 +501,7 @@ services:
       - PEERS=ws://node25:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3026:3001"
     links:
@@ -521,7 +521,7 @@ services:
       - PEERS=ws://node26:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3027:3001"
     links:
@@ -541,7 +541,7 @@ services:
       - PEERS=ws://node27:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3028:3001"
     links:
@@ -561,7 +561,7 @@ services:
       - PEERS=ws://node28:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3029:3001"
     links:
@@ -581,7 +581,7 @@ services:
       - PEERS=ws://node29:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3030:3001"
     links:
@@ -601,7 +601,7 @@ services:
       - PEERS=ws://node30:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3031:3001"
     links:
@@ -621,7 +621,7 @@ services:
       - PEERS=ws://node31:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3032:3001"
     links:
@@ -641,7 +641,7 @@ services:
       - PEERS=ws://node32:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3033:3001"
     links:
@@ -661,7 +661,7 @@ services:
       - PEERS=ws://node33:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3034:3001"
     links:
@@ -681,7 +681,7 @@ services:
       - PEERS=ws://node34:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3035:3001"
     links:
@@ -701,7 +701,7 @@ services:
       - PEERS=ws://node35:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3036:3001"
     links:
@@ -721,7 +721,7 @@ services:
       - PEERS=ws://node36:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3037:3001"
     links:
@@ -741,7 +741,7 @@ services:
       - PEERS=ws://node37:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3038:3001"
     links:
@@ -761,7 +761,7 @@ services:
       - PEERS=ws://node38:6001
     build:
       context: ../../
-      dockerfile: /blockchain-server/Dockerfile
+      dockerfile: /server/Dockerfile
     ports:
       - "3039:3001"
     links:
