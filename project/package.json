@@ -1,0 +1,25 @@
+{
+  "name": "typescript",
+  "version": "1.0.0",
+  "description": "nanochain in fully ts",
+  "main": "transaction.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "node transaction.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "none"
+  },
+  "keywords": [
+    "none"
+  ],
+  "author": "me",
+  "license": "ISC",
+  "dependencies": {
+    "@types/uuid": "^3.4.2",
+    "uuid": "^3.1.0"
+  }
+}
