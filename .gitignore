@@ -37,16 +37,8 @@ jspm_packages
 .node_repl_history
 
 # Ignores compiled TypeScript files
-**/wwwroot/app/**/*.map
-**/wwwroot/app/**/*.js
-
-# Created by https://www.gitignore.io/api/typings
-
-### Typings ###
-## Ignore downloaded typings
-typings
-
-# End of https://www.gitignore.io/api/typings
+project/*.map
+project/*.js
 
 #Project specific
 

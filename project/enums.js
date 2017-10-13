@@ -63,3 +63,9 @@ var EditionType;
     EditionType["OWNER"] = "owner";
 })(EditionType || (EditionType = {}));
 exports.EditionType = EditionType;
+var Status;
+(function (Status) {
+    Status[Status["ENABLED"] = 0] = "ENABLED";
+    Status[Status["DISABLED"] = 1] = "DISABLED";
+})(Status || (Status = {}));
+exports.Status = Status;

@@ -1,5 +1,6 @@
 import { Entity } from "./entity";
 import { Consensus, Status } from "./enums";
+import { documentStore } from "./stores";
 /**
 *
 *
@@ -27,6 +28,8 @@ export class Document {
         this._owner = owner;
         this._keepers = keepers;
         this._consensus = consensus;
+
+        documentStore.push(this);
     }
     /**
     * 
@@ -110,9 +113,53 @@ export class Document {
     public get consensus(): Consensus {
         return this._consensus;
     }
-    protected addKeeper(keeper: Entity) {
+    /**
+     * 
+     * 
+     * @memberof Document
+     */
+    public set status(value: Status) {
+        this._status = value;
+    }
+    /**
+     * 
+     * 
+     * @readonly
+     * @type {Status}
+     * @memberof Document
+     */
+    public get status(): Status {
+        return this._status;
+    }
+    /**
+     * 
+     * 
+     * @protected
+     * @param {Entity} keeper 
+     * @memberof Document
+     */
+    public addKeeper(keeper: Entity) {
         this._keepers.push(keeper);
     }
-    /* protected editAndUpdate() {
-    } */
+    public removeKeeper(keeper: Entity) {
+        this._keepers.splice(this._keepers.indexOf(keeper), 1);
+    }
+    /**
+     * 
+     * 
+     * @protected
+     * @param {string} [data] 
+     * @param {Entity[]} [keepers] 
+     * @memberof Document
+     */
+    public edit(data?: string, keepers?: Entity[]): void {
+        const self = this;
+        if (data !== undefined) {
+            self.data.concat("\n\n\n");
+            self.data.concat(data);
+        }
+        if (keepers !== undefined) {
+            self.keepers = keepers;
+        }
+    }
 }

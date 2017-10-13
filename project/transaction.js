@@ -1,50 +1,45 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-// Dividir as classes em diferentes ficheiros
 // Adicionar 2 transaçoes (outra maquina de estados) issuePolicies(add and remove keepers) e criar documento e
 // adicioná-lo à store (documento criado com lista de keepers)
 // updateDocument para atulizar dados keepers (tudo menos id)
-// Documentos têm de ter um campo status (enable ou disabled) para saber se podem ou não ser consultados
 const uuid_1 = require("uuid");
 const enums_1 = require("./enums");
 const stores_1 = require("./stores");
 class Transaction {
     /**
-     * Creates an instance of Transaction.
-     * @param {TransactionType} type
-     * @param {string} document
-     * @param {Entity} thirdEntity
-     * @memberof Transaction
-     */
-    constructor(type, document, thirdEntity, keepers) {
+    * Creates an instance of Transaction.
+    * @param {TransactionType} type
+    * @param {string} document
+    * @param {Entity} thirdEntity
+    * @memberof Transaction
+    */
+    constructor(type, document, thirdEntity) {
         this._id = uuid_1.v4();
         this._type = type;
         this._document = document;
         this._thirdEntity = thirdEntity;
-        if (keepers !== undefined) {
-            this._keepers = keepers;
-        }
-        /* documentStore.forEach(element => {
-          if (element.id === document) {
-            this._keepers = element.keepers;
-          }
-        }); */
+        stores_1.documentStore.forEach(element => {
+            if (element.id === document) {
+                this._keepers = element.keepers;
+            }
+        });
     }
     /**
-     *
-     *
-     * @memberof Transaction
-     */
+    *
+    *
+    * @memberof Transaction
+    */
     set document(value) {
         this._document = value;
     }
     /**
-     *
-     *
-     * @readonly
-     * @type {string}
-     * @memberof Transaction
-     */
+    *
+    *
+    * @readonly
+    * @type {string}
+    * @memberof Transaction
+    */
     get document() {
         return this._document;
     }
@@ -53,73 +48,73 @@ class Transaction {
         this._id = value;
     }
     /**
-     *
-     *
-     * @type {string}
-     * @memberof Transaction
-     */
+    *
+    *
+    * @type {string}
+    * @memberof Transaction
+    */
     get id() {
         return this._id;
     }
     /**
-     *
-     *
-     * @memberof Transaction
-     */
+    *
+    *
+    * @memberof Transaction
+    */
     set type(value) {
         this._type = value;
     }
     /**
-     *
-     *
-     * @readonly
-     * @type {TransactionType}
-     * @memberof Transaction
-     */
+    *
+    *
+    * @readonly
+    * @type {TransactionType}
+    * @memberof Transaction
+    */
     get type() {
         return this._type;
     }
     /**
-     *
-     *
-     * @memberof Transaction
-     */
+    *
+    *
+    * @memberof Transaction
+    */
     set thirdEntity(thirdEntity) {
         this._thirdEntity = thirdEntity;
     }
     /**
-     *
-     *
-     * @readonly
-     * @memberof Transaction
-     */
+    *
+    *
+    * @readonly
+    * @memberof Transaction
+    */
     get thirdEntity() {
         return this._thirdEntity;
     }
     /**
-     *
-     *
-     * @memberof Transaction
-     */
+    *
+    *
+    * @memberof Transaction
+    */
     set keepers(keepers) {
         this._keepers = keepers;
     }
     /**
-     *
-     *
-     * @readonly
-     * @type {Entity[]}
-     * @memberof Transaction
-     */
+    *
+    *
+    * @readonly
+    * @type {Entity[]}
+    * @memberof Transaction
+    */
     get keepers() {
         return this._keepers;
     }
     /**
-     *
-     *
-     * @returns {Transaction}
-     * @memberof Transaction
-     */
+    *
+    *
+    * @returns {Transaction}
+    * @memberof Transaction
+    */
     applyTransaction() {
         switch (this.type) {
             case enums_1.TransactionType.REQUEST:
@@ -140,23 +135,24 @@ class Transaction {
         }
     }
     /**
-     *
-     *
-     * @returns {Transaction}
-     * @memberof Transaction
-     */
+    *
+    *
+    * @returns {Transaction}
+    * @memberof Transaction
+    */
     clone() {
-        const cloneObj = new Transaction(this.type, this.document, this.thirdEntity, this.keepers);
+        const cloneObj = new Transaction(this.type, this.document, this.thirdEntity);
         cloneObj._id = this.id;
+        cloneObj._keepers = this.keepers;
         return cloneObj;
     }
     /**
-     *
-     *
-     * @param {Transaction} anotherTransaction
-     * @returns {boolean}
-     * @memberof Transaction
-     */
+    *
+    *
+    * @param {Transaction} anotherTransaction
+    * @returns {boolean}
+    * @memberof Transaction
+    */
     equals(anotherTransaction) {
         return (this.id === anotherTransaction.id &&
             this.type === anotherTransaction.type &&
@@ -165,35 +161,40 @@ class Transaction {
             this.keepers === anotherTransaction.keepers);
     }
     /**
-     *
-     *
-     * @private
-     * @returns {Transaction}
-     * @memberof Transaction
-     */
+    *
+    *
+    * @private
+    * @returns {Transaction}
+    * @memberof Transaction
+    */
     applyRequest() {
-        let tempTransactions = [];
+        let keepers = [];
         const self = this;
         stores_1.documentStore.forEach(element => {
             if (element.id === self.document) {
-                tempTransactions = element.keepers;
+                keepers = element.keepers;
             }
         }, self);
         self.type = enums_1.TransactionType.REQUIRE;
-        self.keepers = tempTransactions;
+        self.keepers = keepers;
         return self;
     }
     /**
-     *
-     *
-     * @private
-     * @returns {Transaction}
-     * @memberof Transaction
-     */
+    *
+    *
+    * @private
+    * @returns {Transaction}
+    * @memberof Transaction
+    */
     applyRequire() {
         const self = this;
         let foundPrevious = false;
-        const consensusNeeded = extractConsensus(self);
+        /* for (var index = 0; index < transactionStore.length; index++) {
+          if (self.id === transactionStore[index].id) {
+            self.type = transactionStore[index].type;
+            foundPrevious = true;
+          }
+        } */
         stores_1.transactionStore.forEach(element => {
             if (self.id === element.id) {
                 self.type = element.type;
@@ -201,12 +202,11 @@ class Transaction {
             }
         }, self);
         if (!foundPrevious) {
-            if (evaluateConsensus(self, consensusNeeded)) {
-                self.type = enums_1.TransactionType.AUTH_GRANT;
-            }
-            else {
-                self.type = enums_1.TransactionType.AUTH_DENY;
-            }
+            self.type = getTransactionStatus(self);
+            // cria função que atualiza o tipo em função do consensus e/ou do waiting
+            // verifica se existe transaçao, se nao existir, vê as permissoes,
+            // se exisirem, chama evaluateConsensus, otherwise, mantem os estado da transação
+            // essa função retorna uma transação que depois é adicionada ao store
         }
         stores_1.transactionStore.push(self);
         return self;
@@ -216,12 +216,12 @@ class Transaction {
         // adicionar a transaction store e prosseguir
     }
     /**
-     *
-     *
-     * @private
-     * @returns {Transaction}
-     * @memberof Transaction
-     */
+    *
+    *
+    * @private
+    * @returns {Transaction}
+    * @memberof Transaction
+    */
     applyAuth() {
         const self = this;
         if (self.type === enums_1.TransactionType.AUTH_GRANT) {
@@ -233,32 +233,32 @@ class Transaction {
         return self;
     }
     /**
-     *
-     *
-     * @private
-     * @returns {Transaction}
-     * @memberof Transaction
-     */
+    *
+    *
+    * @private
+    * @returns {Transaction}
+    * @memberof Transaction
+    */
     applyAllow() {
         return this;
     }
     /**
-     *
-     *
-     * @private
-     * @returns {Transaction}
-     * @memberof Transaction
-     */
+    *
+    *
+    * @private
+    * @returns {Transaction}
+    * @memberof Transaction
+    */
     applyDeny() {
         return this;
     }
     /**
-     *
-     *
-     * @private
-     * @returns {Transaction}
-     * @memberof Transaction
-     */
+    *
+    *
+    * @private
+    * @returns {Transaction}
+    * @memberof Transaction
+    */
     applyRevoke() {
         return this;
     }
@@ -268,14 +268,17 @@ exports.Transaction = Transaction;
 Use class for object constructors.
 Use => everywhere else. */
 /**
- *
- *
- * @param {Transaction} transaction
- * @param {number} consensusNeeded
- * @returns {boolean}
- */
+*
+*
+* @param {Transaction} transaction
+* @param {number} consensusNeeded
+* @returns {boolean}
+*/
 function evaluateConsensus(transaction, consensusNeeded) {
+    // isto se cada elemento do this.keepers estiver no permission
+    // se nao estiver, o que retorna? -> implica que a transação fica em espera
     if (consensusNeeded === 0) {
+        console.log("Entering owner stash");
         let docOwner;
         let whatToReturn = false;
         stores_1.documentStore.forEach(element => {
@@ -287,6 +290,7 @@ function evaluateConsensus(transaction, consensusNeeded) {
             if (element.keepers[0] === docOwner) {
                 if (element.type === enums_1.TransactionType.ALLOW) {
                     whatToReturn = true;
+                    console.log("what to return? True it is!");
                 }
             }
         });
@@ -302,18 +306,15 @@ function evaluateConsensus(transaction, consensusNeeded) {
                 }
             }
         }
-        if (consensusAchieved >= consensusNeeded) {
-            return true;
-        }
+        return consensusAchieved >= consensusNeeded;
     }
-    return false;
 }
 /**
- *
- *
- * @param {Transaction} transaction
- * @returns {number}
- */
+*
+*
+* @param {Transaction} transaction
+* @returns {number}
+*/
 function extractConsensus(transaction) {
     let consensusNeeded = -1;
     stores_1.documentStore.forEach(element => {
@@ -331,7 +332,7 @@ function extractConsensus(transaction) {
                 }
                 consensusNeeded = element.keepers.length / 2;
             }
-            else if (element.consensus === enums_1.Consensus.ONLY_OWNER) {
+            else if (element.consensus === enums_1.Consensus.ONE) {
                 consensusNeeded = 1;
             }
             else {
@@ -340,7 +341,39 @@ function extractConsensus(transaction) {
         }
     }, transaction);
     if (consensusNeeded === -1) {
-        alert("Something was wrong, could not find consensus");
+        // alert("Something was wrong, could not find consensus");
+        console.log("Something was wrong, could not find the document asked");
     }
     return consensusNeeded;
+}
+/**
+*
+*
+* @param {Transaction} transaction
+* @returns {TransactionType}
+*/
+function getTransactionStatus(transaction) {
+    const consensusNeeded = extractConsensus(transaction);
+    let permissionsNumber = 0;
+    transaction.keepers.forEach(keeper => {
+        /* console.log("current keeper")
+        console.log(keeper) */
+        stores_1.permissionStore.forEach(permission => {
+            if (keeper === permission.keepers[0] &&
+                transaction.thirdEntity === permission.thirdEntity) {
+                permissionsNumber++;
+            }
+        });
+    });
+    console.log("permissionsNumber");
+    console.log(permissionsNumber);
+    if (permissionsNumber === transaction.keepers.length) {
+        if (evaluateConsensus(transaction, consensusNeeded)) {
+            transaction.type = enums_1.TransactionType.AUTH_GRANT;
+        }
+        else {
+            transaction.type = enums_1.TransactionType.AUTH_DENY;
+        }
+    }
+    return transaction.type;
 }

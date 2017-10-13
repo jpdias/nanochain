@@ -25,15 +25,6 @@ class Document {
     /**
     *
     *
-    * @param {string} id
-    * @memberof Document
-    */
-    set id(id) {
-        this._id = id;
-    }
-    /**
-    *
-    *
     * @readonly
     * @type {string}
     * @memberof Document
@@ -113,8 +104,54 @@ class Document {
     get consensus() {
         return this._consensus;
     }
+    /**
+     *
+     *
+     * @memberof Document
+     */
+    set status(value) {
+        this._status = value;
+    }
+    /**
+     *
+     *
+     * @readonly
+     * @type {Status}
+     * @memberof Document
+     */
+    get status() {
+        return this._status;
+    }
+    /**
+     *
+     *
+     * @protected
+     * @param {Entity} keeper
+     * @memberof Document
+     */
     addKeeper(keeper) {
         this._keepers.push(keeper);
+    }
+    removeKeeper(keeper) {
+        this._keepers.splice(this._keepers.indexOf(keeper), 1);
+    }
+    /**
+     *
+     *
+     * @protected
+     * @param {string} [data]
+     * @param {Entity[]} [keepers]
+     * @memberof Document
+     */
+    edit(data, keepers) {
+        const self = this;
+        if (data !== undefined) {
+            self.data.concat("\n\n\n");
+            self.data.concat(data);
+        }
+        if (keepers !== undefined) {
+            self.keepers = keepers;
+        }
     }
 }
 exports.Document = Document;
